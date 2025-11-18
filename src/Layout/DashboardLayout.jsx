@@ -1,10 +1,11 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
   UserGroupIcon,
   ArrowLeftOnRectangleIcon,
   FolderIcon,
 } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
 
 // eslint-disable-next-line no-unused-vars
 const SidebarLink = ({ to, icon: Icon, label }) => {
@@ -27,6 +28,22 @@ const SidebarLink = ({ to, icon: Icon, label }) => {
 };
 
 const DashboardLayout = () => {
+  const navigation = useNavigate();
+
+  useEffect(() => {
+    const access = localStorage.getItem("token");
+
+    if (!access) {
+      navigation("/login");
+    }
+  }, [navigation]);
+
+  const handleLogOut = () => {
+    localStorage.clear();
+
+    navigation("/");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -48,7 +65,7 @@ const DashboardLayout = () => {
         </nav>
 
         {/* Logout */}
-        <div className="p-6 border-t">
+        <div className="p-6 border-t" onClick={handleLogOut}>
           <SidebarLink
             to="/logout"
             icon={ArrowLeftOnRectangleIcon}
