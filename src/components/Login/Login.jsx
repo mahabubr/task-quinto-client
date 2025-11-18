@@ -1,96 +1,121 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
+  const [loading, setLoading] = useState(false);
 
-      // Basic validation
-      const newErrors = {};
-      if (!email) newErrors.email = "Email is required";
-      else if (!/\S+@\S+\.\S+/.test(email))
-        newErrors.email = "Email is invalid";
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
-      if (!password) newErrors.password = "Password is required";
-      else if (password.length < 6)
-        newErrors.password = "Password must be at least 6 characters";
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      setErrors(newErrors);
+    // Basic validation
+    const newErrors = {};
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid";
 
-      if (Object.keys(newErrors).length === 0) {
-        // ✅ Here you get email and password
-        console.log("Email:", email);
-        console.log("Password:", password);
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
 
-        // You can add API call or further logic here
-        alert(`Login Successful!\nEmail: ${email}\nPassword: ${password}`);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+      } else {
+        localStorage.setItem("token", data.token);
+        alert("Sign In successful!");
+        navigate("/dashboard"); // redirect after signup
       }
-    };
+    } catch {
+      alert("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
-          <h2 className="text-2xl font-bold text-gray-800 text-center">
-            Login
-          </h2>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold text-gray-800 text-center">Login</h2>
 
-          <form className="mt-6" onSubmit={handleSubmit}>
-            {/* Email */}
-            <div className="mb-4">
-              <label className="block text-gray-700">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
+        <form className="mt-6" onSubmit={handleSubmit}>
+          {/* Email */}
+          <div className="mb-4">
+            <label className="block text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Enter your email"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
+          </div>
 
-            {/* Password */}
-            <div className="mb-4">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter your password"
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
-            </div>
+          {/* Password */}
+          <div className="mb-4">
+            <label className="block text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Enter your password"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
+          </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mt-4"
-            >
-              Login
-            </button>
-          </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mt-4"
+            disabled={loading}
+          >
+            {loading ? "..." : "Login"}
+          </button>
+        </form>
 
-          {/* Signup Redirect */}
-          <p className="text-center text-gray-600 mt-6">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-600 hover:underline">
-              Sign Up
-            </Link>
-          </p>
-        </div>
+        {/* Signup Redirect */}
+        <p className="text-center text-gray-600 mt-6">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-blue-600 hover:underline">
+            Sign Up
+          </Link>
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
+};
 export default Login;
