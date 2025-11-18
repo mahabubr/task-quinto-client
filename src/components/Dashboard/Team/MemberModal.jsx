@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Modal from "../../../shared/Modal";
 
-const MemberModal = ({ isOpen, onClose, onSave, teamId }) => {
+const MemberModal = ({ isOpen, onClose, teamId }) => {
   const [member, setMember] = useState({
     name: "",
     role: "",
@@ -26,27 +26,33 @@ const MemberModal = ({ isOpen, onClose, onSave, teamId }) => {
     setLoading(true);
     setApiError("");
     try {
-      const response = await fetch(`/api/teams/${teamId}/members`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: member.name,
-          role: member.role,
-          capacity: Number(member.capacity),
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/member`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: member.name,
+            role: member.role,
+            capacity: Number(member.capacity),
+            team_id: teamId,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Failed to add member");
       }
 
-      const newMember = await response.json();
-      onSave(newMember);
+      // const newMember = await response.json();
+      // onSave(newMember);
 
       setMember({ name: "", role: "", capacity: "" });
       setErrors({});
       onClose();
+
+      window.location.reload();
     } catch (err) {
       setApiError(err.message);
     } finally {
