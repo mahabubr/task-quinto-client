@@ -1,10 +1,31 @@
 import { useState } from "react";
 import { UserIcon, UserGroupIcon, PlusIcon } from "@heroicons/react/24/solid";
 import TaskModal from "./TaskModal";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const ProjectCard = ({ projectData }) => {
   const [project] = useState(projectData);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/task?id=${taskId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      alert("Failed to delete task. Please try again.");
+    }
+  };
 
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl transition-all duration-200">
@@ -68,8 +89,9 @@ const ProjectCard = ({ projectData }) => {
                       {t.name}
                     </h4>
 
-                    <span
-                      className={`text-xs px-3 py-1 rounded-full font-medium
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-xs px-3 py-1 rounded-full font-medium
                           ${
                             t.status === "pending"
                               ? "bg-yellow-200 text-yellow-800"
@@ -78,9 +100,19 @@ const ProjectCard = ({ projectData }) => {
                               : "bg-green-200 text-green-800"
                           }
                         `}
-                    >
-                      {t.status.replace("_", " ")}
-                    </span>
+                      >
+                        {t.status.replace("_", " ")}
+                      </span>
+
+                      {/* Delete button */}
+                      <button
+                        onClick={() => handleDeleteTask(t.id)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Delete Task"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Description */}
