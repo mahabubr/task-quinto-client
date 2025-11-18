@@ -14,11 +14,21 @@ const TaskModal = ({ isOpen, onClose, members, projectId }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [overloadConfirmed, setOverloadConfirmed] = useState(false);
 
   // Members dropdown options
   const memberOptions = members.map((m) => ({
-    label: m.name,
     value: m.id,
+    label: (
+      <div className="flex flex-col">
+        {/* First line: name */}
+        <span className="font-semibold text-gray-800">{m.name}</span>
+        {/* Second line: capacity and tasks */}
+        <span className="text-sm text-gray-500">
+          Capacity: {m.capacity} | Tasks: {m.task.length}
+        </span>
+      </div>
+    ),
   }));
 
   // Priority options
@@ -35,7 +45,24 @@ const TaskModal = ({ isOpen, onClose, members, projectId }) => {
     { value: "done", label: "Done" },
   ];
 
+  const checkOverloadedMembers = (selectedMembers) => {
+    return selectedMembers
+      .map((sel) => members.find((m) => m.id === Number(sel.value)))
+      .filter((m) => m && m.task.length >= m.capacity);
+  };
+
+  const overloadedMembers = checkOverloadedMembers(task.assigned_members);
+
   const handleSave = async () => {
+    if (overloadedMembers.length > 0 && !overloadConfirmed) {
+      setApiError(
+        `Cannot assign task. Overloaded members: ${overloadedMembers
+          .map((m) => m.name)
+          .join(", ")}`
+      );
+      return;
+    }
+
     const newErrors = {};
     if (!task.title) newErrors.title = "Title is required";
     if (!task.description) newErrors.description = "Description is required";
@@ -96,25 +123,44 @@ const TaskModal = ({ isOpen, onClose, members, projectId }) => {
       title="Add Task"
       footer={
         <>
-          <button
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancel
-          </button>
+          {overloadedMembers.length > 0 && !overloadConfirmed ? (
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 rounded text-white bg-yellow-500 hover:bg-yellow-600 transition"
+                onClick={() => setOverloadConfirmed(true)}
+              >
+                Assign Anyway
+              </button>
+              <button
+                className="px-4 py-2 rounded text-white bg-blue-500 hover:bg-blue-600 transition"
+                onClick={() => setTask({ ...task, assigned_members: [] })}
+              >
+                Choose Another
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
 
-          <button
-            className={`px-4 py-2 rounded text-white transition ${
-              loading
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
-            onClick={handleSave}
-            disabled={loading}
-          >
-            {loading ? "Adding..." : "Add Task"}
-          </button>
+              <button
+                className={`px-4 py-2 rounded text-white transition ${
+                  loading
+                    ? "bg-blue-300 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? "Adding..." : "Add Task"}
+              </button>
+            </div>
+          )}
         </>
       }
     >
