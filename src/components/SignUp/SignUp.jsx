@@ -52,7 +52,7 @@ const SignUp = () => {
       setLoading(true);
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/signup`,
+        `${import.meta.env.VITE_API_BASE_URL}/auth/signup`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -71,6 +71,7 @@ const SignUp = () => {
         alert(data.error || "Sign Up failed");
       } else {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.user);
         alert("Sign Up successful!");
         navigate("/dashboard"); // redirect after signup
       }

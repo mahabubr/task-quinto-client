@@ -30,7 +30,7 @@ const Login = () => {
       setLoading(true);
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/login`,
+        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -47,6 +47,7 @@ const Login = () => {
         alert(data.error || "Sign in failed");
       } else {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.user);
         alert("Sign In successful!");
         navigate("/dashboard"); // redirect after signup
       }
