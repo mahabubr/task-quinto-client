@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Modal from "../../../shared/Modal";
 
 const TeamModal = ({ isOpen, onClose }) => {
@@ -38,8 +38,6 @@ const TeamModal = ({ isOpen, onClose }) => {
         throw new Error(data.message || "Failed to create team");
       }
 
-      //   const createdTeam = await response.json();
-      //   onSave(createdTeam);
       setTeamName("");
       setDescription(""); // reset description
       onClose();

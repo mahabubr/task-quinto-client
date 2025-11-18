@@ -5,6 +5,7 @@ import SignUp from "../components/SignUp/SignUp";
 import DashboardLayout from "../Layout/DashboardLayout";
 import Dashboard from "../components/Dashboard/Dashboard";
 import Team from "../components/Dashboard/Team/Team";
+import Project from "../components/Dashboard/Project/Project";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "team",
         Component: Team,
+      },
+      {
+        path: "project",
+        Component: Project,
       },
     ],
   },

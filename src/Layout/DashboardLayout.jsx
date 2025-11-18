@@ -3,6 +3,7 @@ import {
   HomeIcon,
   UserGroupIcon,
   ArrowLeftOnRectangleIcon,
+  FolderIcon,
 } from "@heroicons/react/24/outline";
 
 // eslint-disable-next-line no-unused-vars
@@ -39,6 +40,11 @@ const DashboardLayout = () => {
         <nav className="flex-1 p-6 flex flex-col gap-2">
           <SidebarLink to="/dashboard" icon={HomeIcon} label="Overview" />
           <SidebarLink to="/dashboard/team" icon={UserGroupIcon} label="Team" />
+          <SidebarLink
+            to="/dashboard/project"
+            icon={FolderIcon}
+            label="Projects"
+          />
         </nav>
 
         {/* Logout */}
