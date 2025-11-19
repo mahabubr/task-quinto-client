@@ -10,8 +10,10 @@ const ProjectTask = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        const user = localStorage.getItem("user");
+
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/project`
+          `${import.meta.env.VITE_API_BASE_URL}/project?user_id=${user}`
         ); // Adjust API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch project");
